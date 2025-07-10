@@ -84,5 +84,47 @@ test('Navegar a carrito', async ({ page }) => {
 
 
 
+test('Llenado de datos Checkout', async ({ page }) => {
+
+//Login
+  await page.goto('https://www.saucedemo.com/');
+  await page.locator('//input[@id="user-name"]').fill('standard_user');
+  await page.locator('//input[@id="password"]').fill('secret_sauce');
+  await page.locator('//input[@id="login-button"]').click();
+  
+//
+  const producto = page.locator('.inventory_item:has-text("Sauce Labs Bike Light")');
+  await expect(producto).toBeVisible();
+  await producto.locator('//button[@name="add-to-cart-sauce-labs-bike-light"]').click();
+  await expect(producto.getByRole('button', { name: 'Remove' })).toBeVisible();
+  
+  const contadorProductos = page.locator('.shopping_cart_badge');
+  await expect(contadorProductos).toHaveText('1');
+
+//Click en el icono de carrito
+  await page.locator('.shopping_cart_link').click()
+
+//Verificar que se ingreso a la pagina de Cart
+  await expect(page).toHaveURL(/.*cart.html/); 
+
+//Hacer clic en el botón Checkout
+await page.getByRole('button', {name:'Checkout'}).click()
+
+//Llenar formulario
+await page.locator('#first-name').fill('Maribel')
+await page.locator('#last-name').fill('Pérez')
+await page.locator('#postal-code').fill('520002')
+
+//Hacer clic en el botón Continuar
+await page.getByRole('button', {name:'Continue'}).click()
+
+//Redireccionamiento a la pagina de resumen
+await expect(page).toHaveURL(/.*checkout-step-two.html/);
+
+
+});
+
+
+
 
 
